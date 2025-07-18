@@ -23,13 +23,22 @@ export default function ChatInterface() {
   const searchParams = useSearchParams()
 
   const thinkingMessages = [
-    'exploring their background...',
-    'reviewing their experience...',
-    'analyzing their skills...',
-    'finding relevant information...',
-    'processing their expertise...',
-    'understanding their qualifications...'
+    `exploring Sheng's background...`,
+    `reviewing Sheng's experience...`,
+    `analyzing Sheng's skills...`,
+    `finding relevant information...`,
+    `processing Sheng's expertise...`,
+    `understanding Sheng's qualifications..`
   ]
+
+  const firstMessage = `**Hi there! 👋  I'm askSheng, Sheng's AI Assistant.**
+\nI'm here to help you get to know Sheng beyond his resume. You can:
+- 📝 Paste a job description, and I’ll assess how well Sheng fits the role
+- 💼 Ask about specific skills, projects, or experiences from his resume
+- 🤝 Learn more about his interests, personality, and what makes him unique
+
+\nJust type your question or paste a job post — let’s get started!
+  `
 
   useEffect(() => {
     const tokenParam = searchParams.get('token')
@@ -38,7 +47,7 @@ export default function ChatInterface() {
       // Add welcome message
       setMessages([{
         id: '1',
-        text: "Hello! I'm here to help answer any questions you have about this candidate. Feel free to ask about their experience, skills, projects, or anything else you'd like to know!",
+        text: firstMessage,
         isUser: false,
         timestamp: new Date()
       }])
@@ -145,7 +154,23 @@ export default function ChatInterface() {
       {/* Header */}
       <header className="bg-white border-b border-stone-200 px-6 py-4">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-xl font-medium text-stone-800">AI Assistant</h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <img src="/sheng.png" alt="Sheng's icon" className="w-8 h-8 rounded-full" />
+              <h1 className="text-xl font-medium text-stone-800">askSheng</h1>
+            </div>
+            <a 
+              href="https://ngtingsheng.com/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="px-4 py-2 text-stone-700 hover:text-stone-900 hover:bg-stone-50 rounded-lg transition-colors font-medium flex items-center space-x-2"
+            >
+              <span>Blog</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          </div>
         </div>
       </header>
 
@@ -158,36 +183,36 @@ export default function ChatInterface() {
               className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[70%] rounded-lg px-4 py-3 ${
+                className={`max-w-[70%] rounded-lg px-4 py-3 shadow-sm ${
                   message.isUser
-                    ? 'bg-stone-200 text-stone-800'
-                    : 'bg-white text-stone-700 border border-stone-200'
+                    ? 'bg-orange-100 text-amber-900'
+                    : 'bg-gradient-to-b from-amber-50 to-orange-50 text-amber-900 border border-orange-200'
                 }`}
               >
                 {message.isUser ? (
                   <p className="whitespace-pre-wrap leading-relaxed">{message.text}</p>
                 ) : (
-                  <div className="prose prose-stone prose-sm max-w-none">
+                  <div className="prose prose-amber prose-sm max-w-none">
                     <ReactMarkdown
                       components={{
                         p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed text-base">{children}</p>,
-                        strong: ({ children }) => <strong className="font-semibold text-stone-800">{children}</strong>,
+                        strong: ({ children }) => <strong className="font-semibold text-amber-900">{children}</strong>,
                         em: ({ children }) => <em className="italic">{children}</em>,
                         ul: ({ children }) => <ul className="list-disc ml-4 mb-2 space-y-1">{children}</ul>,
                         ol: ({ children }) => <ol className="list-decimal ml-4 mb-2 space-y-1">{children}</ol>,
                         li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-                        h1: ({ children }) => <h1 className="text-2xl font-bold text-stone-800 mb-3">{children}</h1>,
-                        h2: ({ children }) => <h2 className="text-xl font-semibold text-stone-800 mb-2">{children}</h2>,
-                        h3: ({ children }) => <h3 className="text-lg font-semibold text-stone-800 mb-2">{children}</h3>,
-                        code: ({ children }) => <code className="bg-stone-100 px-1 py-0.5 rounded text-sm font-mono">{children}</code>,
-                        blockquote: ({ children }) => <blockquote className="border-l-4 border-stone-300 pl-4 italic">{children}</blockquote>,
+                        h1: ({ children }) => <h1 className="text-2xl font-bold text-amber-900 mb-3">{children}</h1>,
+                        h2: ({ children }) => <h2 className="text-xl font-semibold text-amber-900 mb-2">{children}</h2>,
+                        h3: ({ children }) => <h3 className="text-lg font-semibold text-amber-900 mb-2">{children}</h3>,
+                        code: ({ children }) => <code className="bg-orange-100 px-1 py-0.5 rounded text-sm font-mono text-amber-900">{children}</code>,
+                        blockquote: ({ children }) => <blockquote className="border-l-4 border-orange-300 pl-4 italic">{children}</blockquote>,
                       }}
                     >
                       {message.text}
                     </ReactMarkdown>
                   </div>
                 )}
-                <time className="text-xs text-stone-500 mt-2 block">
+                <time className="text-xs text-amber-700 mt-2 block">
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </time>
               </div>
@@ -196,14 +221,14 @@ export default function ChatInterface() {
           
           {isThinking && (
             <div className="flex justify-start">
-              <div className="bg-white text-stone-700 border border-stone-200 rounded-lg px-4 py-3 max-w-[70%]">
+              <div className="bg-gradient-to-b from-amber-50 to-orange-50 text-amber-900 border border-orange-200 rounded-lg px-4 py-3 max-w-[70%] shadow-sm">
                 <div className="flex items-center space-x-2">
                   <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-stone-400 rounded-full animate-pulse"></div>
-                    <div className="w-2 h-2 bg-stone-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                    <div className="w-2 h-2 bg-stone-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                   </div>
-                  <span className="text-sm italic text-stone-500">{thinkingText}</span>
+                  <span className="text-sm italic text-amber-700">{thinkingText}</span>
                 </div>
               </div>
             </div>
@@ -228,7 +253,7 @@ export default function ChatInterface() {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask about their experience, skills, or background..."
+              placeholder="Ask about his experience, skills, or background..."
               className="flex-1 resize-none border border-stone-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-stone-400 focus:border-transparent text-stone-700 placeholder-stone-400"
               rows={1}
               disabled={isLoading}
