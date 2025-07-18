@@ -28,21 +28,21 @@ export async function validateToken(tokenString: string): Promise<TokenValidatio
     if (!token) {
       return {
         isValid: false,
-        error: 'The link is invalid or has expired. Please contact Sheng if you’d like to continue using AskSheng'
+        error: 'This link doesn’t seem to be active anymore. Please contact Sheng to regain access to askSheng.'
       }
     }
 
     if (token.expiresAt < new Date()) {
       return {
         isValid: false,
-        error: 'The link is invalid or has expired. Please contact Sheng if you’d like to continue using AskSheng'
+        error: 'This link doesn’t seem to be active anymore. Please contact Sheng to regain access to askSheng.'
       }
     }
 
     if (token.usedMessages >= token.maxMessages) {
       return {
         isValid: false,
-        error: 'Please contact Sheng if you’d like to continue using AskSheng.'
+        error: 'Maximum message limit reached. Please contact Sheng if you’d like to continue using askSheng.'
       }
     }
 

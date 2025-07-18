@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AskSheng",
+  title: "askSheng",
   description: "AI assistant for Sheng",
   icons: [
     {

@@ -59,7 +59,7 @@ export default function ChatInterface() {
       setSessionId(data.sessionId)
       return data.sessionId
     } catch (error) {
-      console.error('Error creating session:', error)
+      // Session creation failed - will be handled when user tries to send message
       return null
     }
   }
@@ -70,16 +70,14 @@ export default function ChatInterface() {
       setToken(tokenParam)
       // Create session when landing on the page
       createSession(tokenParam)
-      // Add welcome message
-      setMessages([{
-        id: '1',
-        text: firstMessage,
-        isUser: false,
-        timestamp: new Date()
-      }])
-    } else {
-      setError('No access token provided. Please use the link provided by the candidate.')
     }
+    // Always add welcome message regardless of token
+    setMessages([{
+      id: '1',
+      text: firstMessage,
+      isUser: false,
+      timestamp: new Date()
+    }])
   }, [searchParams])
 
   useEffect(() => {
@@ -103,7 +101,13 @@ export default function ChatInterface() {
   }
 
   const sendMessage = async () => {
-    if (!inputValue.trim() || !token || isLoading) return
+    if (!inputValue.trim() || isLoading) return
+
+    // Check if token is missing and show error
+    if (!token) {
+      setError(`This link doesn’t seem to be active anymore. Please contact Sheng to regain access to askSheng.`)
+      return
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -165,16 +169,6 @@ export default function ChatInterface() {
     }
   }
 
-  if (error && !token) {
-    return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-sm border border-stone-200 p-8 text-center">
-          <h2 className="text-xl font-medium text-stone-800 mb-4">Access Required</h2>
-          <p className="text-stone-600 leading-relaxed">{error}</p>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col">
