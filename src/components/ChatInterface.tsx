@@ -165,7 +165,7 @@ export default function ChatInterface() {
               rel="noopener noreferrer"
               className="px-4 py-2 text-stone-700 hover:text-stone-900 hover:bg-stone-50 rounded-lg transition-colors font-medium flex items-center space-x-2"
             >
-              <span>Blog</span>
+              <span>Personal Blog</span>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
@@ -175,7 +175,7 @@ export default function ChatInterface() {
       </header>
 
       {/* Chat Area */}
-      <div className="flex-1 overflow-hidden flex flex-col max-w-4xl mx-auto w-full">
+      <div className="flex-1 overflow-hidden flex flex-col max-w-5xl mx-auto w-full">
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {messages.map((message) => (
             <div
@@ -183,7 +183,7 @@ export default function ChatInterface() {
               className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[70%] rounded-lg px-4 py-3 shadow-sm ${
+                className={`max-w-[85%] rounded-lg px-4 py-3 shadow-sm ${
                   message.isUser
                     ? 'bg-orange-100 text-amber-900'
                     : 'bg-gradient-to-b from-amber-50 to-orange-50 text-amber-900 border border-orange-200'
@@ -221,7 +221,7 @@ export default function ChatInterface() {
           
           {isThinking && (
             <div className="flex justify-start">
-              <div className="bg-gradient-to-b from-amber-50 to-orange-50 text-amber-900 border border-orange-200 rounded-lg px-4 py-3 max-w-[70%] shadow-sm">
+              <div className="bg-gradient-to-b from-amber-50 to-orange-50 text-amber-900 border border-orange-200 rounded-lg px-4 py-3 max-w-[100%] shadow-sm">
                 <div className="flex items-center space-x-2">
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>

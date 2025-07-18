@@ -5,22 +5,30 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 })
 
-export async function generateResponse(message: string): Promise<string> {
+export interface ChatMessage {
+  role: 'user' | 'assistant' | 'system'
+  content: string
+}
+
+export async function generateResponse(message: string, conversationHistory: ChatMessage[] = []): Promise<string> {
   try {
     const systemPrompt = getSystemPrompt()
     
+    const messages: ChatMessage[] = [
+      {
+        role: 'system',
+        content: systemPrompt
+      },
+      ...conversationHistory,
+      {
+        role: 'user',
+        content: message
+      }
+    ]
+    
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: systemPrompt
-        },
-        {
-          role: 'user',
-          content: message
-        }
-      ],
+      messages,
       max_tokens: 1000,
       temperature: 0.7
     })
