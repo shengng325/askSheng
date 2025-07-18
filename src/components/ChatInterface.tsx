@@ -18,6 +18,7 @@ export default function ChatInterface() {
   const [isThinking, setIsThinking] = useState(false)
   const [thinkingText, setThinkingText] = useState('')
   const [token, setToken] = useState<string | null>(null)
+  const [sessionId, setSessionId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const searchParams = useSearchParams()
@@ -40,10 +41,35 @@ export default function ChatInterface() {
 \nJust type your question or paste a job post — let’s get started!
   `
 
+  const createSession = async (token: string) => {
+    try {
+      const response = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ token })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create session')
+      }
+
+      const data = await response.json()
+      setSessionId(data.sessionId)
+      return data.sessionId
+    } catch (error) {
+      console.error('Error creating session:', error)
+      return null
+    }
+  }
+
   useEffect(() => {
     const tokenParam = searchParams.get('token')
     if (tokenParam) {
       setToken(tokenParam)
+      // Create session when landing on the page
+      createSession(tokenParam)
       // Add welcome message
       setMessages([{
         id: '1',
@@ -102,7 +128,8 @@ export default function ChatInterface() {
         },
         body: JSON.stringify({
           message: userMessage.text,
-          token
+          token,
+          sessionId
         })
       })
 

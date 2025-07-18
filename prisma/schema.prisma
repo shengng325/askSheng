@@ -24,18 +24,33 @@ model Token {
   updatedAt   DateTime @updatedAt
   
   conversations Conversation[]
+  sessions      Session[]
   
   @@map("tokens")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  sessionId String   @unique
+  tokenId   String
+  createdAt DateTime @default(now())
+  
+  token         Token          @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  conversations Conversation[]
+  
+  @@map("sessions")
 }
 
 model Conversation {
   id        String   @id @default(cuid())
   tokenId   String
+  sessionId String?
   message   String
   response  String
   createdAt DateTime @default(now())
   
-  token Token @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  token   Token    @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  session Session? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
   
   @@map("conversations")
 }

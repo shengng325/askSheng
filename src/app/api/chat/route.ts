@@ -8,7 +8,7 @@ const conversationHistory = new Map<string, ChatMessage[]>()
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, token } = await request.json()
+    const { message, token, sessionId } = await request.json()
 
     if (!message || !token) {
       return NextResponse.json(
@@ -44,11 +44,22 @@ export async function POST(request: NextRequest) {
     // Store updated history
     conversationHistory.set(token, limitedHistory)
 
+    // Find session if sessionId is provided
+    let sessionDbId = null
+    if (sessionId) {
+      const session = await prisma.session.findUnique({
+        where: { sessionId },
+        select: { id: true }
+      })
+      sessionDbId = session?.id || null
+    }
+
     // Save conversation and increment token usage
     await Promise.all([
       prisma.conversation.create({
         data: {
           tokenId: validation.token!.id,
+          sessionId: sessionDbId,
           message,
           response
         }
