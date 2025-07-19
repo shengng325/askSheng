@@ -5,12 +5,16 @@ let knowledgeBaseContent: string | null = null
 
 export function getKnowledgeBase(): string {
   if (knowledgeBaseContent === null) {
-    try {
-      const filePath = path.join(process.cwd(), 'knowledge-base.md')
-      knowledgeBaseContent = fs.readFileSync(filePath, 'utf-8')
-    } catch (error) {
-      console.error('Error reading knowledge base:', error)
-      knowledgeBaseContent = 'Knowledge base not found. Please contact the applicant directly.'
+    if (process.env.KNOWLEDGE_BASE_CONTENT) {
+      knowledgeBaseContent = process.env.KNOWLEDGE_BASE_CONTENT
+    } else {
+      try {
+        const filePath = path.join(process.cwd(), 'knowledge-base.md')
+        knowledgeBaseContent = fs.readFileSync(filePath, 'utf-8')
+      } catch (error) {
+        console.error('Error reading knowledge base:', error)
+        knowledgeBaseContent = 'Knowledge base not found. Please contact the applicant directly.'
+      }
     }
   }
   return knowledgeBaseContent
