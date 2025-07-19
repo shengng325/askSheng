@@ -32,14 +32,28 @@ export default function ChatInterface() {
     `understanding Sheng's qualifications..`
   ]
 
-  const firstMessage = `**Hi there! 👋  I'm askSheng, Sheng's AI Assistant.**
+  const firstMessages = [
+    `**Hi there! 👋  I'm askSheng, Sheng's AI Assistant.**
 \nI'm here to help you get to know Sheng beyond his resume. You can:
-- 📝 Paste a job description, and I’ll assess how well Sheng fits the role
+- 📝 Paste a job description, and I'll assess how well Sheng fits the role
 - 💼 Ask about specific skills, projects, or experiences from his resume
 - 🤝 Learn more about his interests, personality, and what makes him unique
 
-\nJust type your question or paste a job post — let’s get started!
-  `
+\nJust type your question or **paste a job post** — let's get started!
+  `,
+    `**Hey there! 👋 You’re chatting with askSheng, Sheng's AI assistant.**
+
+\nI'm here to help you get to know Sheng beyond his resume. I can help you:
+- 📝 Understand how Sheng aligns with your job requirements
+- 💼 Explore his technical skills and past work
+- 🤝 Discover more about who he is beyond the resume
+
+Feel free to ask a question or **paste a job description** to begin.`
+  ]
+
+  const getRandomFirstMessage = () => {
+    return firstMessages[Math.floor(Math.random() * firstMessages.length)]
+  }
 
   const createSession = async (token: string) => {
     try {
@@ -74,7 +88,7 @@ export default function ChatInterface() {
     // Always add welcome message regardless of token
     setMessages([{
       id: '1',
-      text: firstMessage,
+      text: getRandomFirstMessage(),
       isUser: false,
       timestamp: new Date()
     }])
