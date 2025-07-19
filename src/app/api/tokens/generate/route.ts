@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 export async function POST(request: NextRequest) {
   try {
-    const { label, maxMessages = 30, validityDays = 30 } = await request.json()
+    const { label, company, maxMessages = 30, validityDays = 30 } = await request.json()
 
     if (!label) {
       return NextResponse.json(
@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
       data: {
         token,
         label,
+        company: company || null,
         maxMessages,
         expiresAt
       }
@@ -33,6 +34,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       token: newToken.token,
       label: newToken.label,
+      company: newToken.company,
       maxMessages: newToken.maxMessages,
       expiresAt: newToken.expiresAt,
       url: `${process.env.NEXT_PUBLIC_APP_URL}?token=${newToken.token}`

@@ -6,6 +6,7 @@ import TokensTable from '@/components/TokensTable'
 interface TokenResult {
   token: string
   label: string
+  company: string | null
   maxMessages: number
   expiresAt: string
   url: string
@@ -13,6 +14,7 @@ interface TokenResult {
 
 export default function GenerateToken() {
   const [label, setLabel] = useState('')
+  const [company, setCompany] = useState('')
   const [maxMessages, setMaxMessages] = useState(30)
   const [validityDays, setValidityDays] = useState(30)
   const [isLoading, setIsLoading] = useState(false)
@@ -36,6 +38,7 @@ export default function GenerateToken() {
         },
         body: JSON.stringify({
           label: label.trim(),
+          company: company.trim() || null,
           maxMessages,
           validityDays
         })
@@ -49,6 +52,7 @@ export default function GenerateToken() {
 
       setResult(data)
       setLabel('')
+      setCompany('')
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
@@ -69,7 +73,7 @@ export default function GenerateToken() {
           <div className="space-y-6">
             <div>
               <label htmlFor="label" className="block text-sm font-medium text-stone-700 mb-2">
-                Label (e.g., ABC_Company_AI_Engineer)
+                Label (e.g., AI_Engineer_Position)
               </label>
               <input
                 id="label"
@@ -77,6 +81,20 @@ export default function GenerateToken() {
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
                 placeholder="Enter a descriptive label"
+                className="w-full border border-stone-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-stone-400 focus:border-transparent text-stone-700"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="company" className="block text-sm font-medium text-stone-700 mb-2">
+                Company (optional)
+              </label>
+              <input
+                id="company"
+                type="text"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                placeholder="Enter company name"
                 className="w-full border border-stone-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-stone-400 focus:border-transparent text-stone-700"
               />
             </div>
@@ -134,6 +152,13 @@ export default function GenerateToken() {
                 <label className="block text-sm font-medium text-stone-700 mb-2">Label</label>
                 <p className="text-stone-600">{result.label}</p>
               </div>
+
+              {result.company && (
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Company</label>
+                  <p className="text-stone-600">{result.company}</p>
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-stone-700 mb-2">Token</label>

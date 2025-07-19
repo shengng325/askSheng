@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,43 +8,41 @@ datasource db {
 }
 
 model Token {
-  id          String   @id @default(cuid())
-  token       String   @unique
-  label       String
-  maxMessages Int      @default(30)
-  usedMessages Int     @default(0)
-  expiresAt   DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  id            String         @id @default(cuid())
+  token         String         @unique
+  label         String
+  maxMessages   Int            @default(30)
+  usedMessages  Int            @default(0)
+  expiresAt     DateTime
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  company       String?
   conversations Conversation[]
   sessions      Session[]
-  
+
   @@map("tokens")
 }
 
 model Session {
-  id        String   @id @default(cuid())
-  sessionId String   @unique
-  tokenId   String
-  createdAt DateTime @default(now())
-  
-  token         Token          @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  id            String         @id @default(cuid())
+  sessionId     String         @unique
+  tokenId       String
+  createdAt     DateTime       @default(now())
   conversations Conversation[]
-  
+  token         Token          @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+
   @@map("sessions")
 }
 
 model Conversation {
   id        String   @id @default(cuid())
   tokenId   String
-  sessionId String?
   message   String
   response  String
   createdAt DateTime @default(now())
-  
-  token   Token    @relation(fields: [tokenId], references: [id], onDelete: Cascade)
-  session Session? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
-  
+  sessionId String?
+  session   Session? @relation(fields: [sessionId], references: [id])
+  token     Token    @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+
   @@map("conversations")
 }

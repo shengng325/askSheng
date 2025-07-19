@@ -6,33 +6,60 @@ interface Token {
   id: string
   token: string
   label: string
+  company: string | null
   maxMessages: number
   usedMessages: number
   expiresAt: string
   createdAt: string
 }
 
+interface PaginationInfo {
+  currentPage: number
+  totalPages: number
+  totalCount: number
+  limit: number
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+}
+
+interface TokensResponse {
+  tokens: Token[]
+  pagination: PaginationInfo
+}
+
 export default function TokensTable() {
   const [tokens, setTokens] = useState<Token[]>([])
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [copiedTokenId, setCopiedTokenId] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [sortBy, setSortBy] = useState<'label' | 'company' | 'createdAt'>('createdAt')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
   useEffect(() => {
     fetchTokens()
-  }, [])
+  }, [currentPage, sortBy, sortOrder])
 
   const fetchTokens = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch('/api/tokens')
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: '10',
+        sortBy,
+        sortOrder
+      })
+      
+      const response = await fetch(`/api/tokens?${params}`)
       
       if (!response.ok) {
         throw new Error('Failed to fetch tokens')
       }
       
-      const data = await response.json()
-      setTokens(data)
+      const data: TokensResponse = await response.json()
+      setTokens(data.tokens)
+      setPagination(data.pagination)
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
@@ -60,6 +87,20 @@ export default function TokensTable() {
 
   const isExpired = (expiresAt: string) => {
     return new Date(expiresAt) < new Date()
+  }
+
+  const handleSort = (column: 'label' | 'company' | 'createdAt') => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortBy(column)
+      setSortOrder('desc')
+    }
+    setCurrentPage(1) // Reset to first page when sorting changes
+  }
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
   }
 
   if (isLoading) {
@@ -99,12 +140,114 @@ export default function TokensTable() {
           <table className="w-full table-fixed">
             <thead>
               <tr className="border-b border-stone-200">
-                <th className="text-left py-4 px-6 font-medium text-stone-700 w-1/5">Label</th>
-                <th className="text-left py-4 px-6 font-medium text-stone-700 w-2/5">Token</th>
-                <th className="text-center py-4 px-6 font-medium text-stone-700 w-1/6">Used/Max Messages</th>
-                <th className="text-center py-4 px-6 font-medium text-stone-700 w-1/8">Created</th>
-                <th className="text-center py-4 px-6 font-medium text-stone-700 w-1/8">Expires</th>
-                <th className="text-center py-4 px-6 font-medium text-stone-700 w-1/12">Status</th>
+                <th className="w-1/5">
+                  <button
+                    onClick={() => handleSort('label')}
+                    className="group flex items-center justify-between text-left py-4 px-6 font-medium text-stone-700 hover:text-stone-900 hover:bg-stone-50 rounded-lg transition-all w-full"
+                  >
+                    <span>Label</span>
+                    <div className="flex flex-col ml-1">
+                      <svg 
+                        className={`w-3 h-3 transition-colors ${
+                          sortBy === 'label' && sortOrder === 'asc' 
+                            ? 'text-stone-900' 
+                            : 'text-stone-400 group-hover:text-stone-600'
+                        }`} 
+                        fill="currentColor" 
+                        viewBox="0 0 20 20"
+                      >
+                        <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+                      </svg>
+                      <svg 
+                        className={`w-3 h-3 transition-colors -mt-1 ${
+                          sortBy === 'label' && sortOrder === 'desc' 
+                            ? 'text-stone-900' 
+                            : 'text-stone-400 group-hover:text-stone-600'
+                        }`} 
+                        fill="currentColor" 
+                        viewBox="0 0 20 20"
+                      >
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </button>
+                </th>
+                <th className="w-1/6">
+                  <button
+                    onClick={() => handleSort('company')}
+                    className="group flex items-center justify-between text-left py-4 px-6 font-medium text-stone-700 hover:text-stone-900 hover:bg-stone-50 rounded-lg transition-all w-full"
+                  >
+                    <span>Company</span>
+                    <div className="flex flex-col ml-1">
+                      <svg 
+                        className={`w-3 h-3 transition-colors ${
+                          sortBy === 'company' && sortOrder === 'asc' 
+                            ? 'text-stone-900' 
+                            : 'text-stone-400 group-hover:text-stone-600'
+                        }`} 
+                        fill="currentColor" 
+                        viewBox="0 0 20 20"
+                      >
+                        <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+                      </svg>
+                      <svg 
+                        className={`w-3 h-3 transition-colors -mt-1 ${
+                          sortBy === 'company' && sortOrder === 'desc' 
+                            ? 'text-stone-900' 
+                            : 'text-stone-400 group-hover:text-stone-600'
+                        }`} 
+                        fill="currentColor" 
+                        viewBox="0 0 20 20"
+                      >
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </button>
+                </th>
+                <th className="text-left py-4 px-6 font-medium text-stone-700 w-1/5">
+                  <span className="cursor-default">Token</span>
+                </th>
+                <th className="text-center py-4 px-6 font-medium text-stone-700 w-1/8">
+                  <span className="cursor-default">Used/Max Messages</span>
+                </th>
+                <th className="w-1/8">
+                  <button
+                    onClick={() => handleSort('createdAt')}
+                    className="group flex items-center justify-center text-center py-4 px-6 font-medium text-stone-700 hover:text-stone-900 hover:bg-stone-50 rounded-lg transition-all w-full"
+                  >
+                    <span>Created</span>
+                    <div className="flex flex-col ml-1">
+                      <svg 
+                        className={`w-3 h-3 transition-colors ${
+                          sortBy === 'createdAt' && sortOrder === 'asc' 
+                            ? 'text-stone-900' 
+                            : 'text-stone-400 group-hover:text-stone-600'
+                        }`} 
+                        fill="currentColor" 
+                        viewBox="0 0 20 20"
+                      >
+                        <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+                      </svg>
+                      <svg 
+                        className={`w-3 h-3 transition-colors -mt-1 ${
+                          sortBy === 'createdAt' && sortOrder === 'desc' 
+                            ? 'text-stone-900' 
+                            : 'text-stone-400 group-hover:text-stone-600'
+                        }`} 
+                        fill="currentColor" 
+                        viewBox="0 0 20 20"
+                      >
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </button>
+                </th>
+                <th className="text-center py-4 px-6 font-medium text-stone-700 w-1/12">
+                  <span className="cursor-default">Expires</span>
+                </th>
+                <th className="text-center py-4 px-6 font-medium text-stone-700 w-1/12">
+                  <span className="cursor-default">Status</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -112,6 +255,9 @@ export default function TokensTable() {
                 <tr key={token.id} className="border-b border-stone-100 hover:bg-stone-50">
                   <td className="py-4 px-6">
                     <div className="font-medium text-stone-800 truncate">{token.label}</div>
+                  </td>
+                  <td className="py-4 px-6">
+                    <div className="text-stone-600 truncate">{token.company || '-'}</div>
                   </td>
                   <td className="py-4 px-6">
                     <div 
@@ -163,6 +309,61 @@ export default function TokensTable() {
               ))}
             </tbody>
           </table>
+          
+          {pagination && pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between mt-6 pt-6 border-t border-stone-200">
+              <div className="text-sm text-stone-600">
+                Showing {((pagination.currentPage - 1) * pagination.limit) + 1} to {Math.min(pagination.currentPage * pagination.limit, pagination.totalCount)} of {pagination.totalCount} tokens
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => handlePageChange(pagination.currentPage - 1)}
+                  disabled={!pagination.hasPreviousPage}
+                  className="px-3 py-2 text-sm border border-stone-300 rounded hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+                >
+                  Previous
+                </button>
+                
+                <div className="flex items-center space-x-1">
+                  {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                    let pageNum
+                    if (pagination.totalPages <= 5) {
+                      pageNum = i + 1
+                    } else if (pagination.currentPage <= 3) {
+                      pageNum = i + 1
+                    } else if (pagination.currentPage >= pagination.totalPages - 2) {
+                      pageNum = pagination.totalPages - 4 + i
+                    } else {
+                      pageNum = pagination.currentPage - 2 + i
+                    }
+                    
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`px-3 py-2 text-sm rounded transition-colors ${
+                          pageNum === pagination.currentPage
+                            ? 'bg-stone-700 text-white'
+                            : 'border border-stone-300 hover:bg-stone-50'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    )
+                  })}
+                </div>
+                
+                <button
+                  onClick={() => handlePageChange(pagination.currentPage + 1)}
+                  disabled={!pagination.hasNextPage}
+                  className="px-3 py-2 text-sm border border-stone-300 rounded hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
