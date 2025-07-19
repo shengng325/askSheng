@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react'
 
 interface Token {
   id: string
@@ -27,7 +27,11 @@ interface TokensResponse {
   pagination: PaginationInfo
 }
 
-export default function TokensTable() {
+export interface TokensTableRef {
+  refresh: () => void
+}
+
+const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
   const [tokens, setTokens] = useState<Token[]>([])
   const [pagination, setPagination] = useState<PaginationInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -40,6 +44,10 @@ export default function TokensTable() {
   useEffect(() => {
     fetchTokens()
   }, [currentPage, sortBy, sortOrder])
+
+  useImperativeHandle(ref, () => ({
+    refresh: fetchTokens
+  }))
 
   const fetchTokens = async () => {
     try {
@@ -368,4 +376,8 @@ export default function TokensTable() {
       )}
     </div>
   )
-}
+})
+
+TokensTable.displayName = 'TokensTable'
+
+export default TokensTable

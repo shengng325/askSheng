@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import TokensTable from '@/components/TokensTable'
+import { useState, useRef } from 'react'
+import TokensTable, { TokensTableRef } from '@/components/TokensTable'
 
 interface TokenResult {
   token: string
@@ -20,6 +20,7 @@ export default function GenerateToken() {
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<TokenResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const tokensTableRef = useRef<TokensTableRef>(null)
 
   const generateToken = async () => {
     if (!label.trim()) {
@@ -53,6 +54,9 @@ export default function GenerateToken() {
       setResult(data)
       setLabel('')
       setCompany('')
+      
+      // Refresh the tokens table
+      tokensTableRef.current?.refresh()
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
@@ -203,7 +207,7 @@ export default function GenerateToken() {
         )}
 
         <div className="mt-8">
-          <TokensTable />
+          <TokensTable ref={tokensTableRef} />
         </div>
       </div>
     </div>
