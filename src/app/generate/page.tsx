@@ -68,7 +68,7 @@ export default function GenerateToken() {
           <div className="space-y-6">
             <div>
               <label htmlFor="label" className="block text-sm font-medium text-stone-700 mb-2">
-                Label (e.g., "ABC_Company_AI_Engineer")
+                Label (e.g., ABC_Company_AI_Engineer)
               </label>
               <input
                 id="label"
