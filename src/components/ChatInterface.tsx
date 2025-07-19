@@ -289,14 +289,14 @@ Feel free to ask a question or **paste a job description** to begin.`
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask about his experience, skills, or background..."
-              className="flex-1 resize-none border border-stone-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-stone-400 focus:border-transparent text-stone-700 placeholder-stone-400"
+              className="flex-1 resize-none border border-orange-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-transparent text-stone-700 placeholder-stone-400 placeholder:text-ellipsis placeholder:overflow-hidden placeholder:whitespace-nowrap"
               rows={1}
               disabled={isLoading}
             />
             <button
               onClick={sendMessage}
               disabled={!inputValue.trim() || isLoading}
-              className="px-6 py-3 bg-stone-700 text-white rounded-lg hover:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-6 py-3 bg-orange-100 text-amber-900 rounded-lg hover:bg-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Send
             </button>
