@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import TokensTable from '@/components/TokensTable'
 
 interface TokenResult {
   token: string
@@ -61,7 +62,7 @@ export default function GenerateToken() {
 
   return (
     <div className="min-h-screen bg-stone-50 py-12 px-4">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-lg shadow-sm border border-stone-200 p-8">
           <h1 className="text-2xl font-medium text-stone-800 mb-6">Generate Access Token</h1>
           
@@ -175,6 +176,10 @@ export default function GenerateToken() {
             </div>
           </div>
         )}
+
+        <div className="mt-8">
+          <TokensTable />
+        </div>
       </div>
     </div>
   )
