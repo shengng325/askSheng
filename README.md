@@ -18,3 +18,6 @@ But behind the scenes, there’s more going on — including access control, pro
 - Next.js
 - Postgres
 - Docker compose (for local development)
+
+## Other technical details
+If you would like to read more about how **askSheng** is built and designed, please read it [here](https://ngtingsheng.com/blog/ask-sheng/).
