@@ -20,4 +20,5 @@ But behind the scenes, there’s more going on — including access control, pro
 - Docker compose (for local development)
 
 ## Other technical details
-If you would like to read more about how **askSheng** is built and designed, please read it [here](https://ngtingsheng.com/blog/ask-sheng/).
+If you would like to read more about how **askSheng** is built and designed, please read it 
+<a href="https://ngtingsheng.com/blog/ask-sheng/" target="_blank" rel="noopener noreferrer">here</a>
