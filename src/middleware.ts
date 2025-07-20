@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  // Only protect the /generate route
-  if (request.nextUrl.pathname.startsWith('/generate')) {
+  // Protect the /generate route and token API endpoints
+  if (request.nextUrl.pathname.startsWith('/generate') || 
+      request.nextUrl.pathname.startsWith('/api/tokens')) {
     const basicAuth = request.headers.get('authorization')
     
     if (!basicAuth) {
@@ -23,8 +24,8 @@ export function middleware(request: NextRequest) {
       const [username, password] = atob(authValue).split(':')
       
       // Check credentials against environment variables
-      const validUsername = process.env.ADMIN_USERNAME || 'admin'
-      const validPassword = process.env.ADMIN_PASSWORD || 'admin'
+      const validUsername = process.env.ADMIN_USERNAME
+      const validPassword = process.env.ADMIN_PASSWORD
       
       // Remove debug logging for production
       
@@ -51,5 +52,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/generate'
+  matcher: ['/generate', '/api/tokens/:path*']
 }
