@@ -86,7 +86,7 @@ const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
   }
 
   const getFullUrl = (token: string) => {
-    return `${process.env.NEXT_PUBLIC_APP_URL}?token=${token}`
+    return `${process.env.NEXT_PUBLIC_APP_URL}?src=${token}`
   }
 
   const formatDate = (dateString: string) => {

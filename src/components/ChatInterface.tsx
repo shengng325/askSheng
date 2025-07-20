@@ -79,7 +79,7 @@ Feel free to ask a question or **paste a job description** to begin.`
   }
 
   useEffect(() => {
-    const tokenParam = searchParams.get('token')
+    const tokenParam = searchParams.get('src')
     if (tokenParam) {
       setToken(tokenParam)
       // Create session when landing on the page

@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       company: newToken.company,
       maxMessages: newToken.maxMessages,
       expiresAt: newToken.expiresAt,
-      url: `${process.env.NEXT_PUBLIC_APP_URL}?token=${newToken.token}`
+      url: `${process.env.NEXT_PUBLIC_APP_URL}?src=${newToken.token}`
     })
   } catch (error) {
     console.error('Token generation error:', error)
