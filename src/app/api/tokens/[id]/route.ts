@@ -116,7 +116,12 @@ export async function PATCH(
     }
 
     // Prepare update data
-    const updateData: any = {}
+    const updateData: {
+      maxMessages?: number
+      expiresAt?: Date
+      label?: string
+      company?: string | null
+    } = {}
     if (maxMessages !== undefined) {
       updateData.maxMessages = maxMessages
     }
