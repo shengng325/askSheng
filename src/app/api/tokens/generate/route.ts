@@ -13,8 +13,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate unique token
-    const token = uuidv4()
+    // Generate unique token (shorter UUID - first 8 characters)
+    let token = uuidv4().substring(0, 8)
+    
+    // If company is provided, prepend it to the token
+    if (company && company.trim()) {
+      const companySlug = company
+        .trim()
+        .toLowerCase()
+        .split(/\s+/)
+        .slice(0, 2)
+        .join('-')
+        .replace(/[^a-z0-9-]/g, '')
+      token = `${companySlug}-${token}`
+    }
     
     // Calculate expiration date
     const expiresAt = new Date()
