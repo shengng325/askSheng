@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  // Protect the /generate route and token API endpoints
+  // Protect admin routes: /generate, /tokens, and token API endpoints
   if (request.nextUrl.pathname.startsWith('/generate') || 
+      request.nextUrl.pathname.startsWith('/tokens') ||
       request.nextUrl.pathname.startsWith('/api/tokens')) {
     const basicAuth = request.headers.get('authorization')
     
@@ -52,5 +53,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/generate', '/api/tokens/:path*']
+  matcher: ['/generate', '/tokens/:path*', '/api/tokens/:path*']
 }
