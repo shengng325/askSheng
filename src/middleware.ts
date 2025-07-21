@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  // Protect admin routes: /generate, /tokens, and token API endpoints
+  // Protect admin routes: /generate, /tokens, /knowledge-base, and their API endpoints
   if (request.nextUrl.pathname.startsWith('/generate') || 
       request.nextUrl.pathname.startsWith('/tokens') ||
-      request.nextUrl.pathname.startsWith('/api/tokens')) {
+      request.nextUrl.pathname.startsWith('/api/tokens') ||
+      request.nextUrl.pathname.startsWith('/knowledge-base') ||
+      request.nextUrl.pathname.startsWith('/api/knowledge-base')) {
     const basicAuth = request.headers.get('authorization')
     
     if (!basicAuth) {
@@ -53,5 +55,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/generate', '/tokens/:path*', '/api/tokens/:path*']
+  matcher: ['/generate', '/tokens/:path*', '/api/tokens/:path*', '/knowledge-base', '/api/knowledge-base']
 }

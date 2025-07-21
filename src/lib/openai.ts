@@ -12,7 +12,7 @@ export interface ChatMessage {
 
 export async function generateResponse(message: string, conversationHistory: ChatMessage[] = []): Promise<string> {
   try {
-    const systemPrompt = getSystemPrompt()
+    const systemPrompt = await getSystemPrompt()
     
     const messages: ChatMessage[] = [
       {
