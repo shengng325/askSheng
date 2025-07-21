@@ -38,6 +38,14 @@ export default function TokenDetailsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [expandedSessions, setExpandedSessions] = useState<Set<string>>(new Set())
+  const [isEditing, setIsEditing] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [editForm, setEditForm] = useState({
+    label: '',
+    company: '',
+    maxMessages: 0,
+    expiresAt: ''
+  })
 
   useEffect(() => {
     if (tokenId) {
@@ -56,6 +64,14 @@ export default function TokenDetailsPage() {
       
       const data = await response.json()
       setTokenDetails(data)
+      
+      // Initialize edit form with current values
+      setEditForm({
+        label: data.label,
+        company: data.company || '',
+        maxMessages: data.maxMessages,
+        expiresAt: new Date(data.expiresAt).toISOString().slice(0, 16) // Format for datetime-local input
+      })
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
@@ -79,6 +95,66 @@ export default function TokenDetailsPage() {
 
   const isExpired = (expiresAt: string) => {
     return new Date(expiresAt) < new Date()
+  }
+
+  const handleEditClick = () => {
+    setIsEditing(true)
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditing(false)
+    // Reset form to original values
+    if (tokenDetails) {
+      setEditForm({
+        label: tokenDetails.label,
+        company: tokenDetails.company || '',
+        maxMessages: tokenDetails.maxMessages,
+        expiresAt: new Date(tokenDetails.expiresAt).toISOString().slice(0, 16)
+      })
+    }
+  }
+
+  const handleSaveChanges = async () => {
+    if (!tokenDetails) return
+
+    try {
+      setIsSaving(true)
+      
+      const response = await fetch(`/api/tokens/${tokenId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          label: editForm.label,
+          company: editForm.company || null,
+          maxMessages: editForm.maxMessages,
+          expiresAt: new Date(editForm.expiresAt).toISOString()
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update token')
+      }
+
+      const updatedToken = await response.json()
+      
+      // Update the token details with the new values
+      setTokenDetails({
+        ...tokenDetails,
+        label: updatedToken.label,
+        company: updatedToken.company,
+        maxMessages: updatedToken.maxMessages,
+        expiresAt: updatedToken.expiresAt
+      })
+      
+      setIsEditing(false)
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to update token')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   if (isLoading) {
@@ -131,20 +207,71 @@ export default function TokenDetailsPage() {
 
         {/* Token Information Card */}
         <div className="bg-white rounded-lg shadow-sm border border-stone-200 p-8 mb-8">
-          <h1 className="text-2xl font-medium text-stone-800 mb-6">Token Details</h1>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-medium text-stone-800">Token Details</h1>
+            {!isEditing ? (
+              <button
+                onClick={handleEditClick}
+                className="px-4 py-2 bg-stone-700 text-white rounded hover:bg-stone-800 transition-colors"
+              >
+                Edit Token
+              </button>
+            ) : (
+              <div className="flex space-x-2">
+                <button
+                  onClick={handleCancelEdit}
+                  disabled={isSaving}
+                  className="px-4 py-2 border border-stone-300 text-stone-700 rounded hover:bg-stone-50 transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveChanges}
+                  disabled={isSaving}
+                  className="px-4 py-2 bg-stone-700 text-white rounded hover:bg-stone-800 transition-colors disabled:opacity-50"
+                >
+                  {isSaving ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            )}
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-2">Label</label>
-              <p className="text-stone-800 font-medium">{tokenDetails.label}</p>
+              {isEditing ? (
+                <div>
+                  <input
+                    type="text"
+                    value={editForm.label}
+                    onChange={(e) => setEditForm({ ...editForm, label: e.target.value })}
+                    className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
+                    placeholder="Enter label"
+                  />
+                  <p className="text-xs text-stone-500 mt-1">Descriptive label for this token</p>
+                </div>
+              ) : (
+                <p className="text-stone-800 font-medium">{tokenDetails.label}</p>
+              )}
             </div>
             
-            {tokenDetails.company && (
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-2">Company</label>
-                <p className="text-stone-800">{tokenDetails.company}</p>
-              </div>
-            )}
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2">Company</label>
+              {isEditing ? (
+                <div>
+                  <input
+                    type="text"
+                    value={editForm.company}
+                    onChange={(e) => setEditForm({ ...editForm, company: e.target.value })}
+                    className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
+                    placeholder="Enter company name (optional)"
+                  />
+                  <p className="text-xs text-stone-500 mt-1">Company name (optional)</p>
+                </div>
+              ) : (
+                <p className="text-stone-800">{tokenDetails.company || '-'}</p>
+              )}
+            </div>
             
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-2">Token</label>
@@ -155,9 +282,25 @@ export default function TokenDetailsPage() {
             
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-2">Messages Used</label>
-              <p className={`font-medium ${tokenDetails.usedMessages >= tokenDetails.maxMessages ? 'text-red-600' : 'text-stone-800'}`}>
-                {tokenDetails.usedMessages} / {tokenDetails.maxMessages}
-              </p>
+              {isEditing ? (
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-stone-800">{tokenDetails.usedMessages} / </span>
+                    <input
+                      type="number"
+                      min="1"
+                      value={editForm.maxMessages}
+                      onChange={(e) => setEditForm({ ...editForm, maxMessages: parseInt(e.target.value) || 1 })}
+                      className="w-20 border border-stone-300 rounded px-2 py-1 text-sm"
+                    />
+                  </div>
+                  <p className="text-xs text-stone-500 mt-1">Max messages limit</p>
+                </div>
+              ) : (
+                <p className={`font-medium ${tokenDetails.usedMessages >= tokenDetails.maxMessages ? 'text-red-600' : 'text-stone-800'}`}>
+                  {tokenDetails.usedMessages} / {tokenDetails.maxMessages}
+                </p>
+              )}
             </div>
             
             <div>
@@ -184,7 +327,19 @@ export default function TokenDetailsPage() {
             
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-2">Expires</label>
-              <p className="text-stone-600 text-sm">{formatDate(tokenDetails.expiresAt)}</p>
+              {isEditing ? (
+                <div>
+                  <input
+                    type="datetime-local"
+                    value={editForm.expiresAt}
+                    onChange={(e) => setEditForm({ ...editForm, expiresAt: e.target.value })}
+                    className="border border-stone-300 rounded px-3 py-2 text-sm w-full"
+                  />
+                  <p className="text-xs text-stone-500 mt-1">Expiration date and time</p>
+                </div>
+              ) : (
+                <p className="text-stone-600 text-sm">{formatDate(tokenDetails.expiresAt)}</p>
+              )}
             </div>
           </div>
         </div>

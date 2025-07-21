@@ -307,7 +307,7 @@ const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
                   <td className="py-4 px-6 text-center">
                     <button
                       onClick={() => handleTokenDetailsClick(token.id)}
-                      className="hover:bg-stone-100 rounded px-2 py-1 transition-colors"
+                      className="hover:bg-stone-100 rounded px-2 py-1 transition-colors cursor-pointer"
                       title="View token details"
                     >
                       <span className={`${token.usedMessages >= token.maxMessages ? 'text-red-600' : 'text-stone-600'}`}>
@@ -318,7 +318,7 @@ const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
                   <td className="py-4 px-6 text-center">
                     <button
                       onClick={() => handleTokenDetailsClick(token.id)}
-                      className="hover:bg-stone-100 rounded px-2 py-1 transition-colors"
+                      className="hover:bg-stone-100 rounded px-2 py-1 transition-colors cursor-pointer"
                       title="View token details"
                     >
                       <span className="text-stone-600">
