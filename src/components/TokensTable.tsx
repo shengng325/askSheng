@@ -155,17 +155,17 @@ const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
       ) : (
         <div className="w-full">
           {/* Desktop view */}
-          <div className="hidden lg:block overflow-x-auto">
-            <table className="w-full table-auto min-w-[800px]">
+          <div className="hidden lg:block">
+            <table className="w-full table-fixed">
               <thead>
                 <tr className="border-b border-stone-200">
-                  <th className="text-left py-4 px-6 font-medium text-stone-700 min-w-[120px]">
+                  <th className="w-[20%] text-left py-4 px-4 font-medium text-stone-700">
                     <button
                       onClick={() => handleSort('label')}
-                      className="group flex items-center justify-between hover:text-stone-900 hover:bg-stone-50 rounded-lg transition-all w-full"
+                      className="group flex items-center justify-between hover:text-stone-900 hover:bg-stone-50 rounded-lg transition-all w-full text-left"
                     >
-                      <span>Label</span>
-                      <div className="flex flex-col ml-1">
+                      <span className="truncate">Label</span>
+                      <div className="flex flex-col ml-1 flex-shrink-0">
                         <svg 
                           className={`w-3 h-3 transition-colors ${
                             sortBy === 'label' && sortOrder === 'asc' 
@@ -191,13 +191,13 @@ const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
                       </div>
                     </button>
                   </th>
-                  <th className="text-left py-4 px-6 font-medium text-stone-700 min-w-[100px]">
+                  <th className="w-[18%] text-left py-4 px-4 font-medium text-stone-700">
                     <button
                       onClick={() => handleSort('company')}
-                      className="group flex items-center justify-between hover:text-stone-900 hover:bg-stone-50 rounded-lg transition-all w-full"
+                      className="group flex items-center justify-between hover:text-stone-900 hover:bg-stone-50 rounded-lg transition-all w-full text-left"
                     >
-                      <span>Company</span>
-                      <div className="flex flex-col ml-1">
+                      <span className="truncate">Company</span>
+                      <div className="flex flex-col ml-1 flex-shrink-0">
                         <svg 
                           className={`w-3 h-3 transition-colors ${
                             sortBy === 'company' && sortOrder === 'asc' 
@@ -223,22 +223,22 @@ const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
                       </div>
                     </button>
                   </th>
-                  <th className="text-left py-4 px-6 font-medium text-stone-700 min-w-[180px]">
+                  <th className="w-[16%] text-left py-4 px-4 font-medium text-stone-700">
                     <span>Token</span>
                   </th>
-                  <th className="text-center py-4 px-6 font-medium text-stone-700 min-w-[120px]">
+                  <th className="w-[9%] text-center py-4 px-4 font-medium text-stone-700">
                     <span>Messages</span>
                   </th>
-                  <th className="text-center py-4 px-6 font-medium text-stone-700 min-w-[80px]">
+                  <th className="w-[9%] text-center py-4 px-4 font-medium text-stone-700">
                     <span>Sessions</span>
                   </th>
-                  <th className="text-center py-4 px-6 font-medium text-stone-700 min-w-[100px]">
+                  <th className="w-[11%] text-center py-4 px-4 font-medium text-stone-700">
                     <button
                       onClick={() => handleSort('createdAt')}
                       className="group flex items-center justify-center hover:text-stone-900 hover:bg-stone-50 rounded-lg transition-all w-full"
                     >
                       <span>Created</span>
-                      <div className="flex flex-col ml-1">
+                      <div className="flex flex-col ml-1 flex-shrink-0">
                         <svg 
                           className={`w-3 h-3 transition-colors ${
                             sortBy === 'createdAt' && sortOrder === 'asc' 
@@ -264,10 +264,10 @@ const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
                       </div>
                     </button>
                   </th>
-                  <th className="text-center py-4 px-6 font-medium text-stone-700 min-w-[90px]">
+                  <th className="w-[11%] text-center py-4 px-4 font-medium text-stone-700">
                     <span>Expires</span>
                   </th>
-                  <th className="text-center py-4 px-6 font-medium text-stone-700 min-w-[80px]">
+                  <th className="w-[8%] text-center py-4 px-4 font-medium text-stone-700">
                     <span>Status</span>
                   </th>
                 </tr>
@@ -275,29 +275,26 @@ const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
               <tbody>
                 {tokens.map((token) => (
                   <tr key={token.id} className="border-b border-stone-100 hover:bg-stone-50">
-                    <td className="py-4 px-6">
-                      <div className="font-medium text-stone-800 truncate">{token.label}</div>
+                    <td className="py-4 px-4">
+                      <div className="font-medium text-stone-800 truncate" title={token.label}>{token.label}</div>
                     </td>
-                    <td className="py-4 px-6">
-                      <div className="text-stone-600 truncate">{token.company || '-'}</div>
+                    <td className="py-4 px-4">
+                      <div className="text-stone-600 truncate" title={token.company || ''}>{token.company || '-'}</div>
                     </td>
-                    <td className="py-4 px-6">
+                    <td className="py-4 px-4">
                       <div 
                         className="flex items-center space-x-2 cursor-pointer hover:bg-stone-50 rounded p-1 -m-1 transition-colors"
                         onClick={() => copyToClipboard(getFullUrl(token.token), token.id)}
                         title="Click to copy full URL"
                       >
-                        <code className="flex-1 bg-stone-100 text-stone-800 px-3 py-2 rounded text-sm font-mono truncate">
+                        <code className="flex-1 bg-stone-100 text-stone-800 px-2 py-1 rounded text-sm font-mono truncate">
                           {token.token}
                         </code>
-                        <div className="text-stone-600">
+                        <div className="text-stone-600 flex-shrink-0">
                           {copiedTokenId === token.id ? (
-                            <div className="flex items-center space-x-1">
-                              <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                              <span className="text-xs text-green-600 animate-pulse">Copied</span>
-                            </div>
+                            <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
                           ) : (
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -306,10 +303,10 @@ const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-6 text-center">
+                    <td className="py-4 px-4 text-center">
                       <button
                         onClick={() => handleTokenDetailsClick(token.id)}
-                        className="hover:bg-stone-100 rounded px-2 py-1 transition-colors cursor-pointer"
+                        className="hover:bg-stone-100 rounded px-2 py-1 transition-colors cursor-pointer text-sm"
                         title="View token details"
                       >
                         <span className={`${token.usedMessages >= token.maxMessages ? 'text-red-600' : 'text-stone-600'}`}>
@@ -317,7 +314,7 @@ const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
                         </span>
                       </button>
                     </td>
-                    <td className="py-4 px-6 text-center">
+                    <td className="py-4 px-4 text-center">
                       <button
                         onClick={() => handleTokenDetailsClick(token.id)}
                         className="hover:bg-stone-100 rounded px-2 py-1 transition-colors cursor-pointer"
@@ -328,14 +325,14 @@ const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
                         </span>
                       </button>
                     </td>
-                    <td className="py-4 px-6 text-center text-stone-600 text-sm">
+                    <td className="py-4 px-4 text-center text-stone-600 text-sm">
                       {formatDate(token.createdAt)}
                     </td>
-                    <td className="py-4 px-6 text-center text-stone-600 text-sm">
+                    <td className="py-4 px-4 text-center text-stone-600 text-sm">
                       {formatDate(token.expiresAt)}
                     </td>
-                    <td className="py-4 px-6 text-center">
-                      <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+                    <td className="py-4 px-4 text-center">
+                      <span className={`inline-flex px-1.5 py-0.5 rounded-full text-xs font-medium ${
                         isExpired(token.expiresAt) || token.usedMessages >= token.maxMessages
                           ? 'bg-red-100 text-red-800'
                           : 'bg-green-100 text-green-800'
