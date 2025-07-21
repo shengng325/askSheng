@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     // Get total count for pagination
     const totalCount = await prisma.token.count()
 
-    // Get tokens with pagination and sorting
+    // Get tokens with pagination, sorting, and session counts
     const tokens = await prisma.token.findMany({
       skip,
       take: limit,
@@ -34,7 +34,12 @@ export async function GET(request: NextRequest) {
         maxMessages: true,
         usedMessages: true,
         expiresAt: true,
-        createdAt: true
+        createdAt: true,
+        _count: {
+          select: {
+            sessions: true
+          }
+        }
       }
     })
 

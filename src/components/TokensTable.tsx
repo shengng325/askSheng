@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, forwardRef, useImperativeHandle } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface Token {
   id: string
@@ -11,6 +12,9 @@ interface Token {
   usedMessages: number
   expiresAt: string
   createdAt: string
+  _count: {
+    sessions: number
+  }
 }
 
 interface PaginationInfo {
@@ -32,6 +36,7 @@ export interface TokensTableRef {
 }
 
 const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
+  const router = useRouter()
   const [tokens, setTokens] = useState<Token[]>([])
   const [pagination, setPagination] = useState<PaginationInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -109,6 +114,10 @@ const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
+  }
+
+  const handleTokenDetailsClick = (tokenId: string) => {
+    router.push(`/tokens/${tokenId}`)
   }
 
   if (isLoading) {
@@ -218,6 +227,9 @@ const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
                 <th className="text-center py-4 px-6 font-medium text-stone-700 w-1/8">
                   <span className="cursor-default">Used/Max Messages</span>
                 </th>
+                <th className="text-center py-4 px-6 font-medium text-stone-700 w-1/12">
+                  <span className="cursor-default">Sessions</span>
+                </th>
                 <th className="w-1/8">
                   <button
                     onClick={() => handleSort('createdAt')}
@@ -293,9 +305,26 @@ const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
                     </div>
                   </td>
                   <td className="py-4 px-6 text-center">
-                    <span className={`${token.usedMessages >= token.maxMessages ? 'text-red-600' : 'text-stone-600'}`}>
-                      {token.usedMessages}/{token.maxMessages}
-                    </span>
+                    <button
+                      onClick={() => handleTokenDetailsClick(token.id)}
+                      className="hover:bg-stone-100 rounded px-2 py-1 transition-colors"
+                      title="View token details"
+                    >
+                      <span className={`${token.usedMessages >= token.maxMessages ? 'text-red-600' : 'text-stone-600'}`}>
+                        {token.usedMessages}/{token.maxMessages}
+                      </span>
+                    </button>
+                  </td>
+                  <td className="py-4 px-6 text-center">
+                    <button
+                      onClick={() => handleTokenDetailsClick(token.id)}
+                      className="hover:bg-stone-100 rounded px-2 py-1 transition-colors"
+                      title="View token details"
+                    >
+                      <span className="text-stone-600">
+                        {token._count.sessions}
+                      </span>
+                    </button>
                   </td>
                   <td className="py-4 px-6 text-center text-stone-600 text-sm">
                     {formatDate(token.createdAt)}
