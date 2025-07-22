@@ -17,6 +17,8 @@ export default function ChatInterface() {
   const [isLoading, setIsLoading] = useState(false)
   const [isThinking, setIsThinking] = useState(false)
   const [thinkingText, setThinkingText] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+  const [typingText, setTypingText] = useState('')
   const [token, setToken] = useState<string | null>(null)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -31,6 +33,37 @@ export default function ChatInterface() {
     `processing Sheng's expertise...`,
     `understanding Sheng's qualifications..`
   ]
+
+  const typingMessagesOptions = [
+    [
+      `taking the last sip of coffee...`,
+      `wiping the crumbs off the keyboard....`,
+      `alright, I'm back!`,
+      `typing...`,
+      `typing...`,
+      `typing...`,
+    ],
+    [
+      `sipping on some matcha...`,
+      `centering my thoughts...`,
+      `let's dive in!`,
+      `typing...`,
+      `typing...`,
+      `typing...`,
+    ],
+    [
+      `rolling out of sleep mode...`,
+      `doing a few brain push-ups...`,
+      `mentally caffeinated!`,
+      `typing...`,
+      `typing...`,
+      `typing...`,
+    ]
+  ]
+
+  const getRandomTypingMessages = () => {
+    return typingMessagesOptions[Math.floor(Math.random() * typingMessagesOptions.length)]
+  }
 
   const firstMessages = [
     `**Hi there! 👋  I'm askSheng, Sheng's AI Assistant.**
@@ -85,13 +118,19 @@ Feel free to ask a question or **paste a job description** to begin.`
       // Create session when landing on the page
       createSession(tokenParam)
     }
-    // Always add welcome message regardless of token
-    setMessages([{
-      id: '1',
-      text: getRandomFirstMessage(),
-      isUser: false,
-      timestamp: new Date()
-    }])
+    
+    // Show typing effect first, then add welcome message
+    const initializeChat = async () => {
+      await simulateTyping()
+      setMessages([{
+        id: '1',
+        text: getRandomFirstMessage(),
+        isUser: false,
+        timestamp: new Date()
+      }])
+    }
+    
+    initializeChat()
   }, [searchParams])
 
   useEffect(() => {
@@ -112,6 +151,26 @@ Feel free to ask a question or **paste a job description** to begin.`
       setIsThinking(false)
       setThinkingText('')
     }
+  }
+
+  const simulateTyping = () => {
+    return new Promise<void>((resolve) => {
+      setIsTyping(true)
+      const typingMessages = getRandomTypingMessages()
+      let messageIndex = 0
+      
+      const typingInterval = setInterval(() => {
+        setTypingText(typingMessages[messageIndex])
+        messageIndex = (messageIndex + 1) % typingMessages.length
+      }, 800)
+
+      setTimeout(() => {
+        clearInterval(typingInterval)
+        setIsTyping(false)
+        setTypingText('')
+        resolve()
+      }, 3000)
+    })
   }
 
   const sendMessage = async () => {
@@ -264,6 +323,21 @@ Feel free to ask a question or **paste a job description** to begin.`
                     <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                   </div>
                   <span className="text-sm italic text-amber-700">{thinkingText}</span>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {isTyping && (
+            <div className="flex justify-start">
+              <div className="bg-gradient-to-b from-amber-50 to-orange-50 text-amber-900 border border-orange-200 rounded-lg px-4 py-3 max-w-[100%] shadow-sm">
+                <div className="flex items-center space-x-2">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
+                  <span className="text-sm italic text-amber-700">{typingText}</span>
                 </div>
               </div>
             </div>
