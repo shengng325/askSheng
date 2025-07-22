@@ -246,7 +246,7 @@ Feel free to ask a question or **paste a job description** to begin.`
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-stone-200 px-6 py-4">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-stone-200 px-6 py-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -269,7 +269,7 @@ Feel free to ask a question or **paste a job description** to begin.`
       </header>
 
       {/* Chat Area */}
-      <div className="flex-1 overflow-hidden flex flex-col max-w-5xl mx-auto w-full">
+      <div className="flex-1 overflow-hidden flex flex-col max-w-5xl mx-auto w-full pt-20 pb-32">
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {messages.map((message) => (
             <div
@@ -346,17 +346,16 @@ Feel free to ask a question or **paste a job description** to begin.`
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Error Display */}
-        {error && (
-          <div className="px-6 py-2">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-          </div>
-        )}
-
         {/* Input Area */}
-        <div className="border-t border-stone-200 bg-white p-6">
+        <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-5xl border-t border-stone-200 bg-white p-6">
+          {/* Error Display */}
+          {error && (
+            <div className="mb-4">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
+          )}
           <div className="flex space-x-4">
             <textarea
               value={inputValue}
