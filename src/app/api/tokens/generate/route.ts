@@ -36,8 +36,8 @@ export async function POST(request: NextRequest) {
     const newToken = await prisma.token.create({
       data: {
         token,
-        label,
-        company: company || null,
+        label: label.trim(),
+        company: company?.trim() || null,
         maxMessages,
         expiresAt
       }
