@@ -20,6 +20,7 @@ export default function GenerateToken() {
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<TokenResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [copiedUrl, setCopiedUrl] = useState(false)
   const tokensTableRef = useRef<TokensTableRef>(null)
 
   const generateToken = async () => {
@@ -66,6 +67,12 @@ export default function GenerateToken() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
+  }
+
+  const copyUrlToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    setCopiedUrl(true)
+    setTimeout(() => setCopiedUrl(false), 2000)
   }
 
   return (
@@ -140,7 +147,7 @@ export default function GenerateToken() {
             <button
               onClick={generateToken}
               disabled={isLoading}
-              className="w-full bg-stone-700 text-white rounded-lg py-3 px-4 hover:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-stone-700 text-white rounded-lg py-3 px-4 hover:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
             >
               {isLoading ? 'Generating...' : 'Generate Token'}
             </button>
@@ -165,31 +172,29 @@ export default function GenerateToken() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-2">Token</label>
-                <div className="flex items-center space-x-2">
-                  <code className="flex-1 bg-stone-100 text-stone-800 p-3 rounded font-mono text-sm break-all">
-                    {result.token}
-                  </code>
-                  <button
-                    onClick={() => copyToClipboard(result.token)}
-                    className="px-3 py-2 bg-stone-200 text-stone-700 rounded hover:bg-stone-300 text-sm"
-                  >
-                    Copy
-                  </button>
-                </div>
-              </div>
-
-              <div>
                 <label className="block text-sm font-medium text-stone-700 mb-2">Full URL</label>
                 <div className="flex items-center space-x-2">
-                  <code className="flex-1 bg-stone-100 text-stone-800 p-3 rounded font-mono text-sm break-all">
+                  <code 
+                    className="flex-1 bg-stone-100 text-stone-800 p-3 rounded font-mono text-sm break-all cursor-pointer hover:bg-stone-200 transition-colors"
+                    onClick={() => copyUrlToClipboard(result.url)}
+                    title="Click to copy URL"
+                  >
                     {result.url}
                   </code>
                   <button
-                    onClick={() => copyToClipboard(result.url)}
-                    className="px-3 py-2 bg-stone-200 text-stone-700 rounded hover:bg-stone-300 text-sm"
+                    onClick={() => copyUrlToClipboard(result.url)}
+                    className="px-3 py-2 bg-stone-200 text-stone-700 rounded hover:bg-stone-300 text-sm transition-all duration-200 cursor-pointer"
                   >
-                    Copy
+                    {copiedUrl ? (
+                      <span className="flex items-center space-x-1">
+                        <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-green-600">Copied</span>
+                      </span>
+                    ) : (
+                      'Copy'
+                    )}
                   </button>
                 </div>
               </div>
