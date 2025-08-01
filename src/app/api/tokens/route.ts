@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,7 +11,7 @@ export async function GET(request: NextRequest) {
     const sortOrder = searchParams.get('sortOrder') || 'desc'
 
     // Validate sortBy to prevent SQL injection
-    const allowedSortFields = ['label', 'company', 'createdAt']
+    const allowedSortFields = ['label', 'company', 'createdAt', 'latestMessage', 'latestSession']
     const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt'
     const validSortOrder = sortOrder === 'asc' ? 'asc' : 'desc'
 
@@ -19,29 +20,128 @@ export async function GET(request: NextRequest) {
     // Get total count for pagination
     const totalCount = await prisma.token.count()
 
-    // Get tokens with pagination, sorting, and session counts
-    const tokens = await prisma.token.findMany({
-      skip,
-      take: limit,
-      orderBy: {
-        [validSortBy]: validSortOrder
-      },
-      select: {
-        id: true,
-        token: true,
-        label: true,
-        company: true,
-        maxMessages: true,
-        usedMessages: true,
-        expiresAt: true,
-        createdAt: true,
-        _count: {
-          select: {
-            sessions: true
+    // For sorting by latest message/session, we need to use raw SQL or a different approach
+    // Since Prisma doesn't support direct orderBy on aggregated relation fields in this way,
+    // we'll need to handle this differently
+    
+    let tokens
+    
+    if (validSortBy === 'latestMessage') {
+      // Use raw query to sort by latest message time
+      if (validSortOrder === 'desc') {
+        tokens = await prisma.$queryRaw(
+          Prisma.sql`
+            SELECT DISTINCT t.*, 
+                   COALESCE(MAX(c."createdAt"), t."createdAt") as latest_message_time,
+                   (SELECT COUNT(*) FROM sessions s WHERE s."tokenId" = t.id) as sessions_count
+            FROM tokens t
+            LEFT JOIN conversations c ON t.id = c."tokenId"
+            GROUP BY t.id
+            ORDER BY latest_message_time DESC
+            LIMIT ${limit} OFFSET ${skip}
+          `
+        )
+      } else {
+        tokens = await prisma.$queryRaw(
+          Prisma.sql`
+            SELECT DISTINCT t.*, 
+                   COALESCE(MAX(c."createdAt"), t."createdAt") as latest_message_time,
+                   (SELECT COUNT(*) FROM sessions s WHERE s."tokenId" = t.id) as sessions_count
+            FROM tokens t
+            LEFT JOIN conversations c ON t.id = c."tokenId"
+            GROUP BY t.id
+            ORDER BY latest_message_time ASC
+            LIMIT ${limit} OFFSET ${skip}
+          `
+        )
+      }
+    } else if (validSortBy === 'latestSession') {
+      // Use raw query to sort by latest session time
+      if (validSortOrder === 'desc') {
+        tokens = await prisma.$queryRaw(
+          Prisma.sql`
+            SELECT DISTINCT t.*, 
+                   COALESCE(MAX(s."createdAt"), t."createdAt") as latest_session_time,
+                   COUNT(s.id) as sessions_count
+            FROM tokens t
+            LEFT JOIN sessions s ON t.id = s."tokenId"
+            GROUP BY t.id
+            ORDER BY latest_session_time DESC
+            LIMIT ${limit} OFFSET ${skip}
+          `
+        )
+      } else {
+        tokens = await prisma.$queryRaw(
+          Prisma.sql`
+            SELECT DISTINCT t.*, 
+                   COALESCE(MAX(s."createdAt"), t."createdAt") as latest_session_time,
+                   COUNT(s.id) as sessions_count
+            FROM tokens t
+            LEFT JOIN sessions s ON t.id = s."tokenId"
+            GROUP BY t.id
+            ORDER BY latest_session_time ASC
+            LIMIT ${limit} OFFSET ${skip}
+          `
+        )
+      }
+    } else {
+      // Use standard Prisma query for other sorting
+      tokens = await prisma.token.findMany({
+        skip,
+        take: limit,
+        orderBy: {
+          [validSortBy]: validSortOrder
+        },
+        select: {
+          id: true,
+          token: true,
+          label: true,
+          company: true,
+          maxMessages: true,
+          usedMessages: true,
+          expiresAt: true,
+          createdAt: true,
+          _count: {
+            select: {
+              sessions: true
+            }
           }
         }
+      })
+    }
+
+    // If we used raw SQL, we need to format the response and add session counts
+    if (validSortBy === 'latestMessage' || validSortBy === 'latestSession') {
+      // Convert raw SQL results to proper format
+      interface RawTokenResult {
+        id: string
+        token: string
+        label: string
+        company: string | null
+        maxMessages: number
+        usedMessages: number
+        expiresAt: Date
+        createdAt: Date
+        updatedAt: Date
+        sessions_count?: bigint
       }
-    })
+      const formattedTokens = await Promise.all(
+        (tokens as RawTokenResult[]).map(async (token) => ({
+          id: token.id,
+          token: token.token,
+          label: token.label,
+          company: token.company,
+          maxMessages: token.maxMessages,
+          usedMessages: token.usedMessages,
+          expiresAt: token.expiresAt,
+          createdAt: token.createdAt,
+          _count: {
+            sessions: validSortBy === 'latestSession' ? Number(token.sessions_count) : (await prisma.session.count({ where: { tokenId: token.id } }))
+          }
+        }))
+      )
+      tokens = formattedTokens
+    }
 
     const totalPages = Math.ceil(totalCount / limit)
 

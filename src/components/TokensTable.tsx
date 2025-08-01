@@ -43,7 +43,7 @@ const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
   const [error, setError] = useState<string | null>(null)
   const [copiedTokenId, setCopiedTokenId] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
-  const [sortBy, setSortBy] = useState<'label' | 'company' | 'createdAt'>('createdAt')
+  const [sortBy, setSortBy] = useState<'label' | 'company' | 'createdAt' | 'latestMessage' | 'latestSession'>('createdAt')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
   useEffect(() => {
@@ -102,7 +102,7 @@ const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
     return new Date(expiresAt) < new Date()
   }
 
-  const handleSort = (column: 'label' | 'company' | 'createdAt') => {
+  const handleSort = (column: 'label' | 'company' | 'createdAt' | 'latestMessage' | 'latestSession') => {
     if (sortBy === column) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
     } else {
@@ -227,10 +227,68 @@ const TokensTable = forwardRef<TokensTableRef>((props, ref) => {
                     <span>Token</span>
                   </th>
                   <th className="w-[9%] text-center py-4 px-4 font-medium text-stone-700">
-                    <span>Messages</span>
+                    <button
+                      onClick={() => handleSort('latestMessage')}
+                      className="group flex items-center justify-center hover:text-stone-900 hover:bg-stone-50 rounded-lg transition-all w-full"
+                    >
+                      <span>Messages</span>
+                      <div className="flex flex-col ml-1 flex-shrink-0">
+                        <svg 
+                          className={`w-3 h-3 transition-colors ${
+                            sortBy === 'latestMessage' && sortOrder === 'asc' 
+                              ? 'text-stone-900' 
+                              : 'text-stone-400 group-hover:text-stone-600'
+                          }`} 
+                          fill="currentColor" 
+                          viewBox="0 0 20 20"
+                        >
+                          <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+                        </svg>
+                        <svg 
+                          className={`w-3 h-3 transition-colors -mt-1 ${
+                            sortBy === 'latestMessage' && sortOrder === 'desc' 
+                              ? 'text-stone-900' 
+                              : 'text-stone-400 group-hover:text-stone-600'
+                          }`} 
+                          fill="currentColor" 
+                          viewBox="0 0 20 20"
+                        >
+                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </button>
                   </th>
                   <th className="w-[9%] text-center py-4 px-4 font-medium text-stone-700">
-                    <span>Sessions</span>
+                    <button
+                      onClick={() => handleSort('latestSession')}
+                      className="group flex items-center justify-center hover:text-stone-900 hover:bg-stone-50 rounded-lg transition-all w-full"
+                    >
+                      <span>Sessions</span>
+                      <div className="flex flex-col ml-1 flex-shrink-0">
+                        <svg 
+                          className={`w-3 h-3 transition-colors ${
+                            sortBy === 'latestSession' && sortOrder === 'asc' 
+                              ? 'text-stone-900' 
+                              : 'text-stone-400 group-hover:text-stone-600'
+                          }`} 
+                          fill="currentColor" 
+                          viewBox="0 0 20 20"
+                        >
+                          <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+                        </svg>
+                        <svg 
+                          className={`w-3 h-3 transition-colors -mt-1 ${
+                            sortBy === 'latestSession' && sortOrder === 'desc' 
+                              ? 'text-stone-900' 
+                              : 'text-stone-400 group-hover:text-stone-600'
+                          }`} 
+                          fill="currentColor" 
+                          viewBox="0 0 20 20"
+                        >
+                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </button>
                   </th>
                   <th className="w-[11%] text-center py-4 px-4 font-medium text-stone-700">
                     <button
