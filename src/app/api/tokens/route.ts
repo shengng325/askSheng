@@ -28,16 +28,19 @@ export async function GET(request: NextRequest) {
     
     if (validSortBy === 'latestMessage') {
       // Use raw query to sort by latest message time
+      // Tokens with messages first, then tokens without messages
       if (validSortOrder === 'desc') {
         tokens = await prisma.$queryRaw(
           Prisma.sql`
             SELECT DISTINCT t.*, 
-                   COALESCE(MAX(c."createdAt"), t."createdAt") as latest_message_time,
-                   (SELECT COUNT(*) FROM sessions s WHERE s."tokenId" = t.id) as sessions_count
+                   MAX(c."createdAt") as latest_message_time,
+                   (SELECT COUNT(*) FROM sessions s WHERE s."tokenId" = t.id) as sessions_count,
+                   CASE WHEN MAX(c."createdAt") IS NOT NULL THEN 1 ELSE 0 END as has_messages,
+                   CASE WHEN MAX(c."createdAt") IS NOT NULL THEN MAX(c."createdAt") ELSE t."createdAt" END as sort_time
             FROM tokens t
             LEFT JOIN conversations c ON t.id = c."tokenId"
             GROUP BY t.id
-            ORDER BY latest_message_time DESC
+            ORDER BY has_messages DESC, sort_time DESC
             LIMIT ${limit} OFFSET ${skip}
           `
         )
@@ -45,28 +48,33 @@ export async function GET(request: NextRequest) {
         tokens = await prisma.$queryRaw(
           Prisma.sql`
             SELECT DISTINCT t.*, 
-                   COALESCE(MAX(c."createdAt"), t."createdAt") as latest_message_time,
-                   (SELECT COUNT(*) FROM sessions s WHERE s."tokenId" = t.id) as sessions_count
+                   MAX(c."createdAt") as latest_message_time,
+                   (SELECT COUNT(*) FROM sessions s WHERE s."tokenId" = t.id) as sessions_count,
+                   CASE WHEN MAX(c."createdAt") IS NOT NULL THEN 1 ELSE 0 END as has_messages,
+                   CASE WHEN MAX(c."createdAt") IS NOT NULL THEN MAX(c."createdAt") ELSE t."createdAt" END as sort_time
             FROM tokens t
             LEFT JOIN conversations c ON t.id = c."tokenId"
             GROUP BY t.id
-            ORDER BY latest_message_time ASC
+            ORDER BY has_messages DESC, sort_time ASC
             LIMIT ${limit} OFFSET ${skip}
           `
         )
       }
     } else if (validSortBy === 'latestSession') {
       // Use raw query to sort by latest session time
+      // Tokens with sessions first, then tokens without sessions
       if (validSortOrder === 'desc') {
         tokens = await prisma.$queryRaw(
           Prisma.sql`
             SELECT DISTINCT t.*, 
-                   COALESCE(MAX(s."createdAt"), t."createdAt") as latest_session_time,
-                   COUNT(s.id) as sessions_count
+                   MAX(s."createdAt") as latest_session_time,
+                   COUNT(s.id) as sessions_count,
+                   CASE WHEN MAX(s."createdAt") IS NOT NULL THEN 1 ELSE 0 END as has_sessions,
+                   CASE WHEN MAX(s."createdAt") IS NOT NULL THEN MAX(s."createdAt") ELSE t."createdAt" END as sort_time
             FROM tokens t
             LEFT JOIN sessions s ON t.id = s."tokenId"
             GROUP BY t.id
-            ORDER BY latest_session_time DESC
+            ORDER BY has_sessions DESC, sort_time DESC
             LIMIT ${limit} OFFSET ${skip}
           `
         )
@@ -74,12 +82,14 @@ export async function GET(request: NextRequest) {
         tokens = await prisma.$queryRaw(
           Prisma.sql`
             SELECT DISTINCT t.*, 
-                   COALESCE(MAX(s."createdAt"), t."createdAt") as latest_session_time,
-                   COUNT(s.id) as sessions_count
+                   MAX(s."createdAt") as latest_session_time,
+                   COUNT(s.id) as sessions_count,
+                   CASE WHEN MAX(s."createdAt") IS NOT NULL THEN 1 ELSE 0 END as has_sessions,
+                   CASE WHEN MAX(s."createdAt") IS NOT NULL THEN MAX(s."createdAt") ELSE t."createdAt" END as sort_time
             FROM tokens t
             LEFT JOIN sessions s ON t.id = s."tokenId"
             GROUP BY t.id
-            ORDER BY latest_session_time ASC
+            ORDER BY has_sessions DESC, sort_time ASC
             LIMIT ${limit} OFFSET ${skip}
           `
         )
@@ -124,6 +134,11 @@ export async function GET(request: NextRequest) {
         createdAt: Date
         updatedAt: Date
         sessions_count?: bigint
+        latest_message_time?: Date | null
+        latest_session_time?: Date | null
+        has_messages?: number
+        has_sessions?: number
+        sort_time?: Date
       }
       const formattedTokens = await Promise.all(
         (tokens as RawTokenResult[]).map(async (token) => ({
