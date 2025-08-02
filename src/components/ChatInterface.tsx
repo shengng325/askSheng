@@ -291,7 +291,7 @@ Feel free to ask a question or **paste a job description** to begin.`
               <h1 className="text-xl font-medium text-stone-800">askSheng</h1>
             </div>
             <a 
-              href="https://ngtingsheng.com/" 
+              href="https://ngtingsheng.com?utm_source=askSheng" 
               target="_blank" 
               rel="noopener noreferrer"
               className="px-4 py-2 text-stone-700 hover:text-stone-900 hover:bg-stone-50 rounded-lg transition-colors font-medium flex items-center space-x-2"
