@@ -55,3 +55,17 @@ model KnowledgeBase {
 
   @@map("knowledge_base")
 }
+
+model TokenAnalytics {
+  id            String   @id @default(cuid())
+  failureReason String?
+  tokenString   String?
+  userAgent     String?
+  ipAddress     String?
+  accessType    String?
+  fullUrl       String?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+
+  @@map("token_analytics")
+}

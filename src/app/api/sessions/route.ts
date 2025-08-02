@@ -5,7 +5,7 @@ import { randomUUID } from 'crypto'
 
 export async function POST(request: NextRequest) {
   try {
-    const { token } = await request.json()
+    const { token, fullUrl } = await request.json()
 
     if (!token) {
       return NextResponse.json(
@@ -14,8 +14,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate token
-    const validation = await validateToken(token)
+    // Check if URL has 't' parameter to skip analytics
+    const skipAnalytics = fullUrl ? new URL(fullUrl).searchParams.has('t') : false
+
+    // Validate token with page access context
+    const validation = await validateToken(token, { 
+      accessType: 'page_access',
+      fullUrl,
+      userAgent: request.headers.get('user-agent') || undefined,
+      ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
+      skipAnalytics
+    })
     if (!validation.isValid) {
       return NextResponse.json(
         { error: validation.error },

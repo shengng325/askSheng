@@ -95,7 +95,10 @@ Feel free to ask a question or **paste a job description** to begin.`
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ token })
+        body: JSON.stringify({ 
+          token,
+          fullUrl: window.location.href
+        })
       })
 
       if (!response.ok) {
@@ -113,10 +116,28 @@ Feel free to ask a question or **paste a job description** to begin.`
 
   useEffect(() => {
     const tokenParam = searchParams.get('src')
+    const skipAnalytics = searchParams.get('t') !== null // Skip analytics if 't' parameter exists
+    
     if (tokenParam) {
       setToken(tokenParam)
-      // Create session when landing on the page
+      // Create session when landing on the page - this will validate and log invalid tokens
       createSession(tokenParam)
+    } else if (!skipAnalytics) {
+      // Log missing token immediately on page access (skip if 't' parameter present)
+      fetch('/api/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          failureReason: 'no_token',
+          accessType: 'page_access',
+          fullUrl: window.location.href,
+          metadata: { 
+            timestamp: new Date().toISOString(),
+            pathname: window.location.pathname,
+            search: window.location.search
+          }
+        })
+      }).catch(console.error)
     }
     
     // Show typing effect first, then add welcome message
@@ -178,7 +199,23 @@ Feel free to ask a question or **paste a job description** to begin.`
 
     // Check if token is missing and show error
     if (!token) {
-      setError(`This link doesn’t seem to be active anymore. Please contact Sheng to regain access to askSheng.`)
+      // Log analytics for missing token when trying to send message
+      fetch('/api/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          failureReason: 'no_token',
+          accessType: 'message_send',
+          fullUrl: window.location.href,
+          metadata: { 
+            url: window.location.href,
+            action: 'attempting_to_send_message',
+            timestamp: new Date().toISOString()
+          }
+        })
+      }).catch(console.error)
+      
+      setError(`This link doesn't seem to be active anymore. Please contact Sheng to regain access to askSheng.`)
       return
     }
 
