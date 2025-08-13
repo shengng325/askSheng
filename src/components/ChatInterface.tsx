@@ -72,9 +72,8 @@ export default function ChatInterface() {
 - 💼 Ask about specific skills, projects, or experiences from his resume
 - 🤝 Learn more about his interests, personality, and what makes him unique
 
-\nJust type your question or **paste a job post** — let's get started!
-  `,
-    `**Hey there! 👋 You’re chatting with askSheng, Sheng's AI assistant.**
+\nJust type your question or **paste a job post** — let's get started!`,
+    `**Hey there! 👋 You're chatting with askSheng, Sheng's AI assistant.**
 
 \nI'm here to help you get to know Sheng beyond his resume. I can help you:
 - 📝 Understand how Sheng aligns with your job requirements
@@ -83,6 +82,13 @@ export default function ChatInterface() {
 
 Feel free to ask a question or **paste a job description** to begin.`
   ]
+
+  const secondMessage = `But first of all, let me give a quick introduction about Sheng. 
+
+Sheng is a Senior Software Engineer with 5 years' experience building distributed systems, agentic AI applications, and full-stack platforms that solve real-world problems. He has worked with top companies like Ethos (from Series C to pre-IPO) and Grab, consistently delivering high-impact projects and earning recognition as a top performer.
+
+**Drop me any questions** — I’m here to help you figure out if Sheng is the right person to help drive your team’s next big adventure.
+`
 
   const getRandomFirstMessage = () => {
     return firstMessages[Math.floor(Math.random() * firstMessages.length)]
@@ -140,15 +146,28 @@ Feel free to ask a question or **paste a job description** to begin.`
       }).catch(console.error)
     }
     
-    // Show typing effect first, then add welcome message
+    // Show typing effect first, then add welcome messages
     const initializeChat = async () => {
+      // First message with typing effect
       await simulateTyping()
-      setMessages([{
+      const firstMessage = {
         id: '1',
         text: getRandomFirstMessage(),
         isUser: false,
         timestamp: new Date()
-      }])
+      }
+      setMessages([firstMessage])
+      
+      // Add slight delay before second message
+      setTimeout(async () => {
+        await simulateShortTyping()
+        setMessages(prevMessages => [...prevMessages, {
+          id: '2',
+          text: secondMessage,
+          isUser: false,
+          timestamp: new Date()
+        }])
+      }, 1000) // 1 second delay between messages
     }
     
     initializeChat()
@@ -191,6 +210,19 @@ Feel free to ask a question or **paste a job description** to begin.`
         setTypingText('')
         resolve()
       }, 3000)
+    })
+  }
+
+  const simulateShortTyping = () => {
+    return new Promise<void>((resolve) => {
+      setIsTyping(true)
+      setTypingText('typing')
+
+      setTimeout(() => {
+        setIsTyping(false)
+        setTypingText('')
+        resolve()
+      }, 800)
     })
   }
 
