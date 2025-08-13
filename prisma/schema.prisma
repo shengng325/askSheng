@@ -27,6 +27,8 @@ model Session {
   id            String         @id @default(cuid())
   sessionId     String         @unique
   tokenId       String
+  userAgent     String?
+  ipAddress     String?
   createdAt     DateTime       @default(now())
   conversations Conversation[]
   token         Token          @relation(fields: [tokenId], references: [id], onDelete: Cascade)

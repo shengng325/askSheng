@@ -26,6 +26,8 @@ export async function GET(
           select: {
             id: true,
             sessionId: true,
+            userAgent: true,
+            ipAddress: true,
             createdAt: true,
             conversations: {
               select: {

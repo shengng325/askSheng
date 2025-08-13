@@ -39,7 +39,9 @@ export async function POST(request: NextRequest) {
     const session = await prisma.session.create({
       data: {
         sessionId,
-        tokenId: validation.token!.id
+        tokenId: validation.token!.id,
+        userAgent: request.headers.get('user-agent') || undefined,
+        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined
       }
     })
 
