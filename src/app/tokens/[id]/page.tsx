@@ -101,33 +101,7 @@ export default function TokenDetailsPage() {
 
   const formatUserAgent = (userAgent: string | null) => {
     if (!userAgent) return 'Unknown'
-    
-    // Extract browser and OS info from user agent
-    const browserMatch = userAgent.match(/(Chrome|Firefox|Safari|Edge)\/[\d.]+/)
-    const osMatch = userAgent.match(/\(([^)]+)\)/)
-    
-    let browser = null
-    let os = null
-    
-    if (browserMatch) {
-      browser = browserMatch[1]
-    }
-    
-    if (osMatch) {
-      const osInfo = osMatch[1]
-      if (osInfo.includes('Windows')) os = 'Windows'
-      else if (osInfo.includes('Mac')) os = 'macOS'
-      else if (osInfo.includes('Linux')) os = 'Linux'
-      else if (osInfo.includes('iPhone')) os = 'iOS'
-      else if (osInfo.includes('Android')) os = 'Android'
-    }
-    
-    // If we can't parse browser and OS, return the original user agent
-    if (!browser || !os) {
-      return userAgent
-    }
-    
-    return `${browser} on ${os}`
+    return userAgent
   }
 
   const handleEditClick = () => {
